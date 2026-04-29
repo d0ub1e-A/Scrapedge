@@ -1,5 +1,3 @@
-// dashboard/items
-
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
 import { Card, CardHeader, CardTitle } from '#/components/ui/card'
@@ -14,10 +12,11 @@ import {
 import { getItemsFn } from '#/data/items'
 import { ItemStatus } from '#/generated/prisma/enums'
 import { copyToClipboard } from '#/lib/clipboard'
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { Copy } from 'lucide-react'
 import z from 'zod'
 import { zodValidator } from '@tanstack/zod-adapter'
+import { useEffect, useState } from 'react'
 
 const itemSearchSchema = z.object({
   q: z.string().default(''),
@@ -32,7 +31,9 @@ export const Route = createFileRoute('/dashboard/items/')({
 
 function RouteComponent() {
   const data = Route.useLoaderData()
-  // const { q, status } = Route.useSearch();
+  const { q, status } = Route.useSearch()
+  const [searchInput, setSearchInput] = useState(q)
+  const navigate = useNavigate({ from: Route.fullPath })
 
   const selectMenuItems = [
     { value: 'all', content: 'All Statuses' },
@@ -42,8 +43,18 @@ function RouteComponent() {
     })),
   ]
 
+  useEffect(() => {
+    if (searchInput === q) return
+
+    const timeoutId = setTimeout(() => {
+      navigate({ search: (prev) => ({ ...prev, q: searchInput }) })
+    }, 300)
+
+    return () => clearTimeout(timeoutId)
+  }, [searchInput, navigate, q])
+
   return (
-    <div className="flex flex-1 flex-col gap-6">
+    <div className="flex flex-1 flex-col gap-6 px-5 md:px-10 lg:px-15">
       <div>
         <h1 className="text-2xl font-bold">Saved Items</h1>
         <p className="text-muted-foreground">
@@ -53,8 +64,19 @@ function RouteComponent() {
 
       {/* Search and filter */}
       <div className="flex gap-4">
-        <Input placeholder="Search by title or tags" />
-        <Select>
+        <Input
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          placeholder="Search by title or tags"
+        />
+        <Select
+          value={status}
+          onValueChange={(value) =>
+            navigate({
+              search: (prev) => ({ ...prev, status: value as typeof status }),
+            })
+          }
+        >
           <SelectTrigger className="w-40">
             <SelectValue placeholder="Filter by status"></SelectValue>
           </SelectTrigger>

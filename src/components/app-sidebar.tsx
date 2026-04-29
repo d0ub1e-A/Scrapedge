@@ -13,6 +13,7 @@ import {
 import { BookmarkIcon, Import, Compass } from 'lucide-react'
 import { Link, linkOptions } from '@tanstack/react-router'
 import type { NavPrimaryProps, NavUserProps } from '#/lib/types'
+import ThemeToggle from './theme-toggle'
 
 const navItems: NavPrimaryProps['items'] = linkOptions([
   {
@@ -49,9 +50,12 @@ export function AppSidebar({ user }: NavUserProps) {
                   <BookmarkIcon className={`size-4`} />
                 </div>
                 <div className={`grid flex-1 text-left text-sm leading-tight`}>
-                  <span className={`font-medium`}>Recall</span>
-                  <span className={`text-xs`}>Your AI Knowledge Base</span>
+                  <span className={`font-medium`}>Scrapedge</span>
+                  <span className={`text-xs text-muted-foreground`}>
+                    Your AI Knowledge Base
+                  </span>
                 </div>
+                <ThemeToggle />
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

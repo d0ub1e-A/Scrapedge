@@ -17,7 +17,6 @@ import type { NavUserProps } from '#/lib/types'
 import { handleSignOut } from '#/lib/utils'
 import { useNavigate } from '@tanstack/react-router'
 import { ChevronsUpDownIcon, LogOutIcon } from 'lucide-react'
-import ThemeToggle from './theme-toggle'
 
 export function NavUser({ user }: NavUserProps) {
   const { isMobile } = useSidebar()
@@ -71,7 +70,6 @@ export function NavUser({ user }: NavUserProps) {
                   <span className="truncate font-medium">{user.name}</span>
                   <span className="truncate text-xs">{user.email}</span>
                 </div>
-                <ThemeToggle/>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
