@@ -8,6 +8,7 @@ import {
 import { createServerFn } from '@tanstack/react-start'
 import z from 'zod'
 import { authFnMiddleware } from '#/middlewares/auth'
+import { notFound } from '@tanstack/react-router'
 
 export const scrapeUrlFn = createServerFn({ method: 'POST' })
   .middleware([authFnMiddleware])
@@ -151,6 +152,7 @@ export const scrapeBulkUrlFn = createServerFn({ method: 'POST' })
 export const getItemsFn = createServerFn({ method: 'GET' })
   .middleware([authFnMiddleware])
   .handler(async function ({ context }) {
+    // await new Promise((resolve) => setTimeout(resolve, 1500)) // for test delay
     const items = await prisma.savedItem.findMany({
       where: {
         userid: context.session.user.id,
@@ -161,4 +163,22 @@ export const getItemsFn = createServerFn({ method: 'GET' })
     })
 
     return items
+  })
+
+export const getItemById = createServerFn({ method: 'GET' })
+  .middleware([authFnMiddleware])
+  .inputValidator(z.object({ id: z.string() }))
+  .handler(async function ({ context, data }) {
+    const item = await prisma.savedItem.findUnique({
+      where: {
+        userid: context.session.user.id,
+        id: data.id,
+      },
+    })
+
+    if (!item) {
+      throw notFound()
+    }
+
+    return item
   })
