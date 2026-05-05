@@ -175,7 +175,7 @@ function RouteComponent() {
   const { itemsPromise } = Route.useLoaderData()
   const { q, status } = Route.useSearch()
   const [searchInput, setSearchInput] = useState(q)
-  // from property tells teh navigate hook from which route the new path should be navigated
+  // from property tells the navigate hook from which route the new path should be navigated
   const navigate = useNavigate({ from: Route.fullPath })
 
   const selectMenuItems = [

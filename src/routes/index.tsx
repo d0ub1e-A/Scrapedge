@@ -7,7 +7,7 @@ function Home() {
   return (
     <div>
       <Navbar />
-      <div className={``}>Scrapture</div>
+      <h1 className='' >Scrapedge</h1>
     </div>
   )
 }

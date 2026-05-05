@@ -8,7 +8,6 @@ import {
 import { createServerFn } from '@tanstack/react-start'
 import z from 'zod'
 import { authFnMiddleware } from '#/middlewares/auth'
-import { notFound } from '@tanstack/react-router'
 
 export const scrapeUrlFn = createServerFn({ method: 'POST' })
   .middleware([authFnMiddleware])
@@ -169,16 +168,19 @@ export const getItemById = createServerFn({ method: 'GET' })
   .middleware([authFnMiddleware])
   .inputValidator(z.object({ id: z.string() }))
   .handler(async function ({ context, data }) {
-    const item = await prisma.savedItem.findUnique({
-      where: {
-        userid: context.session.user.id,
-        id: data.id,
-      },
-    })
+    try {
+      const item = await prisma.savedItem.findUnique({
+        where: {
+          userid: context.session.user.id,
+          id: data.id,
+        },
+      })
 
-    if (!item) {
-      throw notFound()
+      return item
+    } catch {
+      console.error("Couldn't fetch item")
     }
-
-    return item
+    // if (!item) {
+    //   throw notFound()
+    // }
   })
