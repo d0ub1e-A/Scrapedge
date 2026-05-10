@@ -38,12 +38,19 @@ export const Route = createFileRoute('/dashboard/items/')({
   component: RouteComponent,
   loader: () => ({ itemsPromise: getItemsFn() }),
   validateSearch: zodValidator(itemSearchSchema),
+  head: () => ({
+    meta: [
+      { title: 'Saved Items | Scrapedge' },
+      { property: 'og:title', content: 'Saved Items | Scrapedge' },
+      { name: 'twitter:title', content: 'Saved Items | Scrapedge' },
+    ],
+  }),
 })
 
 function ItemsGridSkeleton() {
   return (
     <div className="grid gap-6 md:grid-cols-2">
-      {Array.from({ length: 4 }).map((_, i) => (
+      {Array.from({ length: 6 }).map((_, i) => (
         <Card key={i} className="overflow-hidden pt-0">
           <Skeleton className="aspect-video w-full" />
           <CardHeader className="space-y-3">

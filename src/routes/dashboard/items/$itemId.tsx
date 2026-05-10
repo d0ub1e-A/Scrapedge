@@ -1,3 +1,4 @@
+import { MessageResponse } from '#/components/ai-elements/message.tsx'
 import { Badge } from '#/components/ui/badge.tsx'
 import { Button, buttonVariants } from '#/components/ui/button'
 import { Card, CardContent } from '#/components/ui/card.tsx'
@@ -22,6 +23,15 @@ import { useState } from 'react'
 export const Route = createFileRoute('/dashboard/items/$itemId')({
   component: RouteComponent,
   loader: ({ params }) => getItemById({ data: { id: params.itemId } }),
+  head: ({ loaderData }) => ({
+    meta: [
+      { title: loaderData?.title ?? 'Item Details | Scrapedge' },
+      {
+        name: 'twitter:title',
+        content: loaderData?.title ?? 'Item Details | Scrapedge',
+      },
+    ],
+  }),
 })
 
 function RouteComponent() {
@@ -120,7 +130,9 @@ function RouteComponent() {
 
             <CollapsibleContent>
               <Card className="mt-2">
-                <CardContent>{data.content}</CardContent>
+                <CardContent>
+                  <MessageResponse>{data.content}</MessageResponse>
+                </CardContent>
               </Card>
             </CollapsibleContent>
           </Collapsible>
