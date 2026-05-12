@@ -7,9 +7,9 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '#/components/ui/collapsible.tsx'
-import { getItemById } from '#/data/items'
+import { getItemById, saveSummaryAndGenerateTagsFn } from '#/data/items'
 import { cn } from '#/lib/utils.ts'
-import { createFileRoute, Link, notFound } from '@tanstack/react-router'
+import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
 import {
   ArrowLeft,
   Calendar,
@@ -28,34 +28,66 @@ import { toast } from 'sonner'
 export const Route = createFileRoute('/dashboard/items/$itemId')({
   component: RouteComponent,
   loader: ({ params }) => getItemById({ data: { id: params.itemId } }),
-  head: ({ loaderData }) => ({
-    meta: [
-      { title: loaderData?.title ?? 'Item Details | Scrapedge' },
-      {
-        name: 'twitter:title',
-        content: loaderData?.title ?? 'Item Details | Scrapedge',
-      },
-    ],
-  }),
+  head: ({ loaderData }) => {
+    const title = loaderData?.title ?? 'Item Details'
+    const description =
+      loaderData?.summary ??
+      'View saved article details and AI-generated summary'
+    const image = loaderData?.ogImage
+
+    return {
+      meta: [
+        { title },
+        { name: 'description', content: description },
+        { property: 'og:title', content: title },
+        { property: 'og:description', content: description },
+        { property: 'og:type', content: 'article' },
+        ...(image ? [{ property: 'og:image', content: image }] : []),
+        {
+          name: 'twitter:card',
+          content: image ? 'summary_large_image' : 'summary',
+        },
+        { name: 'twitter:title', content: title },
+        { name: 'twitter:description', content: description },
+        ...(image ? [{ name: 'twitter:image', content: image }] : []),
+        ...(loaderData?.author
+          ? [{ name: 'author', content: loaderData.author }]
+          : []),
+      ],
+    }
+  },
 })
 
 function RouteComponent() {
   const data = Route.useLoaderData()
   const [isContentOpen, setIsContentOpen] = useState(false)
+  const router = useRouter()
 
   const { isLoading, complete, completion, stop } = useCompletion({
     api: '/api/ai/summary',
     streamProtocol: 'text',
     body: {
-      itemId: data?.id,
+      itemId: data.id,
     },
+    initialCompletion: data.summary ? data.summary : undefined,
     onError: (error) => {
       toast.error(error.message)
+    },
+    onFinish: async function (_prompt, completionText) {
+      await saveSummaryAndGenerateTagsFn({
+        data: {
+          id: data.id,
+          summary: completionText,
+        },
+      })
+
+      router.invalidate()
+      toast.success('Summary generated and saved!')
     },
   })
 
   function handleGenerateSummary() {
-    if (!data?.content) {
+    if (!data.content) {
       toast.error('No content available to summarize')
       return
     }
@@ -70,10 +102,6 @@ function RouteComponent() {
     const year = dateObj.getFullYear()
 
     return `${date} ${month} ${year}`
-  }
-
-  if (!data) {
-    return notFound()
   }
 
   return (
