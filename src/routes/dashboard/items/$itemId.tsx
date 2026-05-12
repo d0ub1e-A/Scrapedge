@@ -18,6 +18,7 @@ import {
   ExternalLink,
   Loader2,
   Sparkle,
+  StopCircleIcon,
   User,
 } from 'lucide-react'
 import { useState } from 'react'
@@ -42,7 +43,7 @@ function RouteComponent() {
   const data = Route.useLoaderData()
   const [isContentOpen, setIsContentOpen] = useState(false)
 
-  const { isLoading, complete, completion } = useCompletion({
+  const { isLoading, complete, completion, stop } = useCompletion({
     api: '/api/ai/summary',
     streamProtocol: 'text',
     body: {
@@ -53,9 +54,9 @@ function RouteComponent() {
     },
   })
 
-  function generateSummary() {
+  function handleGenerateSummary() {
     if (!data?.content) {
-      toast.error('No content available!')
+      toast.error('No content available to summarize')
       return
     }
 
@@ -154,7 +155,11 @@ function RouteComponent() {
               </div>
 
               {data.content && !data.summary && (
-                <Button onClick={generateSummary} disabled={isLoading} size={'sm'}>
+                <Button
+                  onClick={handleGenerateSummary}
+                  disabled={isLoading}
+                  size={'sm'}
+                >
                   {isLoading ? (
                     <>
                       <Loader2 className="animate-spin size-4" /> Generating...
@@ -165,6 +170,12 @@ function RouteComponent() {
                       Generate
                     </>
                   )}
+                </Button>
+              )}
+
+              {isLoading && (
+                <Button onClick={stop} size={'sm'} title="Stop the response">
+                  <StopCircleIcon className="size-4 animate-pulse" />
                 </Button>
               )}
             </div>

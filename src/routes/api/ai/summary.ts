@@ -28,13 +28,14 @@ export const Route = createFileRoute('/api/ai/summary')({
 
         // Stream summary
         const res = streamText({
-          model: openrouter.chat('nvidia/nemotron-3-super-120b-a12b:free'),
+          model: openrouter.chat('openrouter/owl-alpha'),
           system: `You are a helpful assistant that creates concise, informative summaries of web content.
 Your summaries should:
 - Be 2-3 paragraphs long
 - Capture the main points and key takeaways
 - Be written in a clear, professional tone`,
           prompt: `Please summarize the following content:\n\n${prompt}`,
+          maxOutputTokens: 1000,
         })
 
         // Return the response for useCompletion hook expects
