@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from '#/components/ui/card.tsx'
+import { Checkbox } from '#/components/ui/checkbox.tsx'
 import {
   Field,
   FieldError,
@@ -13,11 +14,14 @@ import {
   FieldLabel,
 } from '#/components/ui/field.tsx'
 import { Input } from '#/components/ui/input.tsx'
+import { scrapeBulkUrlFn, searchWebFn } from '#/data/items.ts'
 import { searchSchema } from '#/schemas/import.ts'
+import type { SearchResultWeb } from '@mendable/firecrawl-js'
 import { useForm } from '@tanstack/react-form'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { Loader2, Search, Sparkles } from 'lucide-react'
-import { useTransition } from 'react'
+import { useState, useTransition } from 'react'
+import { toast } from 'sonner'
 
 export const Route = createFileRoute('/dashboard/discover')({
   component: RouteComponent,
@@ -25,6 +29,46 @@ export const Route = createFileRoute('/dashboard/discover')({
 
 function RouteComponent() {
   const [isPending, startTransition] = useTransition()
+  const [searchResults, setSearchResults] = useState<Array<SearchResultWeb>>([])
+  const [selectedUrls, setSelectedUrls] = useState<Set<string>>(new Set())
+  const [isBulkPending, startBulkTransition] = useTransition()
+  const navigate = useNavigate()
+
+  function handleSelectAll() {
+    if (selectedUrls.size === searchResults.length) {
+      setSelectedUrls(new Set())
+    } else {
+      setSelectedUrls(new Set(searchResults.map((link) => link.url)))
+    }
+  }
+
+  function handleToggleUrl(url: string) {
+    const newSelected = new Set(selectedUrls)
+
+    if (newSelected.has(url)) {
+      newSelected.delete(url)
+    } else {
+      newSelected.add(url)
+    }
+
+    setSelectedUrls(newSelected)
+  }
+
+  function handleBulkImport() {
+    startBulkTransition(async function () {
+      if (selectedUrls.size === 0) {
+        toast.error('No url selected. Select At least one.')
+        return
+      }
+
+      await scrapeBulkUrlFn({
+        data: { urls: Array.from(selectedUrls) },
+      })
+
+      toast.success(`${selectedUrls.size} URL(s) scraped successfully.`)
+      navigate({ to: '/dashboard/items' })
+    })
+  }
 
   const form = useForm({
     defaultValues: {
@@ -35,7 +79,9 @@ function RouteComponent() {
     },
     onSubmit: ({ value }) => {
       startTransition(async function () {
-        console.log(value)
+        const result = await searchWebFn({ data: { query: value.query } })
+
+        setSearchResults(result)
       })
     },
   })
@@ -110,6 +156,69 @@ function RouteComponent() {
                 </Button>
               </FieldGroup>
             </form>
+
+            {/* Discovered URLs list */}
+            {searchResults.length > 0 && (
+              <div className={`space-y-4 py-3 md:py-5`}>
+                <div className={`flex items-center justify-between`}>
+                  <p className={`text-sm font-medium`}>
+                    Found {searchResults.length} links
+                  </p>
+                  <Button
+                    onClick={handleSelectAll}
+                    variant={'outline'}
+                    size={'sm'}
+                  >
+                    {selectedUrls.size === searchResults.length
+                      ? 'Deselect All'
+                      : 'Select All'}
+                  </Button>
+                </div>
+
+                <div
+                  className={`max-h-80 space-y-2 overflow-y-auto rounded-md border p-4`}
+                >
+                  {searchResults.map((link) => (
+                    <label
+                      key={link.url}
+                      className={`hover:bg-muted/50 cursor-pointer flex items-start gap-3 rounded-md p-2`}
+                    >
+                      <Checkbox
+                        checked={selectedUrls.has(link.url)}
+                        onCheckedChange={() => handleToggleUrl(link.url)}
+                        className={`mt-0.5`}
+                      />
+                      <div className={`min-w-0 flex-1`}>
+                        <p className={`truncate text-sm font-medium`}>
+                          {link.title ?? 'No title for this link'}
+                        </p>
+                        <p className={`text-muted-foreground truncate text-xs`}>
+                          {link.description ?? 'No description for this link'}
+                        </p>
+                        <p className={`text-muted-foreground truncate text-xs`}>
+                          {link.url}
+                        </p>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+
+                <Button
+                  disabled={isBulkPending}
+                  onClick={handleBulkImport}
+                  type="button"
+                  className={`w-full`}
+                >
+                  {isBulkPending ? (
+                    <>
+                      <Loader2 className={`size-4 animate-spin`} /> Scraping...
+                    </>
+                  ) : (
+                    `Scrape ${selectedUrls.size} URL(s)`
+                  )}
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

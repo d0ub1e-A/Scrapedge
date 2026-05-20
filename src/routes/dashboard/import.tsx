@@ -18,7 +18,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '#/components/ui/tabs'
 import { mapUrlFn, scrapeBulkUrlFn, scrapeUrlFn } from '#/data/items'
 import { bulkImportSchema, singleImportSchema } from '#/schemas/import'
 import type { SearchResultWeb } from '@mendable/firecrawl-js'
-// import type { SearchResultWeb } from '@mendable/firecrawl-js'
 import { useForm } from '@tanstack/react-form'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { Globe, LinkIcon, Loader2 } from 'lucide-react'
@@ -105,6 +104,7 @@ function RouteComponent() {
         const data = await mapUrlFn({ data: value })
 
         if (data) {
+          console.log(data);
           setDiscoveredLinks(data)
           bulkImportForm.reset()
         } else {

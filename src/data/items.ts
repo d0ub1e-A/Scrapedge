@@ -3,6 +3,7 @@ import { firecrawl } from '#/lib/firecrawl'
 import {
   bulkImportSchema,
   extractSchema,
+  searchSchema,
   singleImportSchema,
 } from '#/schemas/import'
 import { createServerFn } from '@tanstack/react-start'
@@ -11,6 +12,7 @@ import { authFnMiddleware } from '#/middlewares/auth'
 import { notFound } from '@tanstack/react-router'
 import { generateText } from 'ai'
 import { openrouter } from '#/lib/open-router.ts'
+import type { SearchResultWeb } from '@mendable/firecrawl-js'
 
 export const scrapeUrlFn = createServerFn({ method: 'POST' })
   .middleware([authFnMiddleware])
@@ -79,13 +81,11 @@ export const mapUrlFn = createServerFn({ method: 'POST' })
   .inputValidator(bulkImportSchema)
   .handler(async function ({ data }) {
     const result = await firecrawl.map(data.url, {
-      limit: 20,
-      search: data.search,
-      location: {
-        languages: ['en', 'bn'],
-      },
+      limit: 15,
+      sitemap: 'include',
+      search: data.search ?? '',
     })
-
+console.log(result);
     return result.links
   })
 
@@ -154,7 +154,6 @@ export const scrapeBulkUrlFn = createServerFn({ method: 'POST' })
 export const getItemsFn = createServerFn({ method: 'GET' })
   .middleware([authFnMiddleware])
   .handler(async function ({ context }) {
-    // await new Promise((resolve) => setTimeout(resolve, 1500)) // for test delay
     const items = await prisma.savedItem.findMany({
       where: {
         userid: context.session.user.id,
@@ -230,4 +229,22 @@ Example: technology, programming, web development, javascript`,
     })
 
     return item
+  })
+
+export const searchWebFn = createServerFn({ method: 'POST' })
+  .middleware([authFnMiddleware])
+  .inputValidator(searchSchema)
+  .handler(async function ({ data }) {
+    const result = await firecrawl.search(data.query, {
+      limit: 5,
+      scrapeOptions: { formats: ['markdown'] },
+      tbs: 'qdr:y',
+    })
+    console.log(result);
+
+    return result.web?.map((item) => ({
+      url: (item as SearchResultWeb).url,
+      title: (item as SearchResultWeb).title,
+      description: (item as SearchResultWeb).description,
+    })) as SearchResultWeb[]
   })
