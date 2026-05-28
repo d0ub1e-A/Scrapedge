@@ -85,7 +85,7 @@ export const mapUrlFn = createServerFn({ method: 'POST' })
       sitemap: 'include',
       search: data.search ?? '',
     })
-console.log(result);
+    console.log(result)
     return result.links
   })
 
@@ -154,6 +154,7 @@ export const scrapeBulkUrlFn = createServerFn({ method: 'POST' })
 export const getItemsFn = createServerFn({ method: 'GET' })
   .middleware([authFnMiddleware])
   .handler(async function ({ context }) {
+    console.log(context.session.user)
     const items = await prisma.savedItem.findMany({
       where: {
         userid: context.session.user.id,
@@ -240,7 +241,7 @@ export const searchWebFn = createServerFn({ method: 'POST' })
       scrapeOptions: { formats: ['markdown'] },
       tbs: 'qdr:y',
     })
-    console.log(result);
+    console.log(result)
 
     return result.web?.map((item) => ({
       url: (item as SearchResultWeb).url,
