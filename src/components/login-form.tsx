@@ -47,7 +47,6 @@ export function LoginForm() {
               })
             },
             onError: ({ error }: ErrorContext) => {
-              console.log(error.message);
               toast.error(error.message)
             },
           },

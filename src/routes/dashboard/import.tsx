@@ -104,7 +104,6 @@ function RouteComponent() {
         const data = await mapUrlFn({ data: value })
 
         if (data) {
-          console.log(data);
           setDiscoveredLinks(data)
           bulkImportForm.reset()
         } else {
