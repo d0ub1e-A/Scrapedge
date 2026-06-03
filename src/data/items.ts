@@ -14,6 +14,7 @@ import { generateText } from 'ai'
 import { openrouter } from '#/lib/open-router.ts'
 import type { SearchResultWeb } from '@mendable/firecrawl-js'
 
+// server function for single url
 export const scrapeUrlFn = createServerFn({ method: 'POST' })
   .middleware([authFnMiddleware])
   .inputValidator(singleImportSchema)
@@ -76,6 +77,7 @@ export const scrapeUrlFn = createServerFn({ method: 'POST' })
     }
   })
 
+// server function for finding out children urls
 export const mapUrlFn = createServerFn({ method: 'POST' })
   .middleware([authFnMiddleware])
   .inputValidator(bulkImportSchema)
@@ -88,10 +90,19 @@ export const mapUrlFn = createServerFn({ method: 'POST' })
     return result.links
   })
 
+export type BulkScrapeProgress = {
+  completed: number
+  total: number
+  url: string
+  status: 'success' | 'failed'
+}
+// server function for multiple url
 export const scrapeBulkUrlFn = createServerFn({ method: 'POST' })
   .middleware([authFnMiddleware])
   .inputValidator(z.object({ urls: z.array(z.string().url()) }))
-  .handler(async function ({ data, context }) {
+  .handler(async function* ({ data, context }) {
+    const total = data.urls.length
+
     for (let i = 0; i < data.urls.length; i++) {
       const url = data.urls[i]
 
@@ -102,6 +113,8 @@ export const scrapeBulkUrlFn = createServerFn({ method: 'POST' })
           status: 'PENDING',
         },
       })
+
+      let status: BulkScrapeProgress['status'] = 'success'
 
       try {
         const result = await firecrawl.scrape(url, {
@@ -140,6 +153,8 @@ export const scrapeBulkUrlFn = createServerFn({ method: 'POST' })
           },
         })
       } catch {
+        status = 'failed'
+
         await prisma.savedItem.update({
           where: { id: item.id },
           data: {
@@ -147,9 +162,19 @@ export const scrapeBulkUrlFn = createServerFn({ method: 'POST' })
           },
         })
       }
+
+      const progress: BulkScrapeProgress = {
+        completed: i + 1,
+        total: total,
+        url: url,
+        status: status,
+      }
+
+      yield progress
     }
   })
 
+// server function for fetching all saved items
 export const getItemsFn = createServerFn({ method: 'GET' })
   .middleware([authFnMiddleware])
   .handler(async function ({ context }) {
@@ -165,6 +190,7 @@ export const getItemsFn = createServerFn({ method: 'GET' })
     return items
   })
 
+// server function for fetching single saved item
 export const getItemById = createServerFn({ method: 'GET' })
   .middleware([authFnMiddleware])
   .inputValidator(z.object({ id: z.string() }))
@@ -181,6 +207,7 @@ export const getItemById = createServerFn({ method: 'GET' })
     return item
   })
 
+// server function saving the generated summary and  generate tags and saving them too to the db
 export const saveSummaryAndGenerateTagsFn = createServerFn({ method: 'POST' })
   .middleware([authFnMiddleware])
   .inputValidator(
@@ -202,7 +229,7 @@ export const saveSummaryAndGenerateTagsFn = createServerFn({ method: 'POST' })
     }
 
     const { text } = await generateText({
-      model: openrouter.chat('openai/gpt-oss-120b:free'),
+      model: openrouter.chat('openrouter/owl-alpha'),
       system: `You are a helpful assistant that extracts relevant tags from content summaries.
 Extract 3-5 short, relevant tags that categorize the content.
 Return ONLY a comma-separated list of tags, nothing else.
@@ -236,7 +263,6 @@ export const searchWebFn = createServerFn({ method: 'POST' })
   .handler(async function ({ data }) {
     const result = await firecrawl.search(data.query, {
       limit: 5,
-      scrapeOptions: { formats: ['markdown'] },
       tbs: 'qdr:y',
     })
 

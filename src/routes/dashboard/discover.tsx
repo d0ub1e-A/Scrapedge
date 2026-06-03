@@ -14,7 +14,12 @@ import {
   FieldLabel,
 } from '#/components/ui/field.tsx'
 import { Input } from '#/components/ui/input.tsx'
-import { scrapeBulkUrlFn, searchWebFn } from '#/data/items.ts'
+import { Progress } from '#/components/ui/progress.tsx'
+import {
+  scrapeBulkUrlFn,
+  searchWebFn,
+  type BulkScrapeProgress,
+} from '#/data/items.ts'
 import { searchSchema } from '#/schemas/import.ts'
 import type { SearchResultWeb } from '@mendable/firecrawl-js'
 import { useForm } from '@tanstack/react-form'
@@ -28,11 +33,12 @@ export const Route = createFileRoute('/dashboard/discover')({
 })
 
 function RouteComponent() {
+  const navigate = useNavigate()
   const [isPending, startTransition] = useTransition()
+  const [isBulkPending, startBulkTransition] = useTransition()
   const [searchResults, setSearchResults] = useState<Array<SearchResultWeb>>([])
   const [selectedUrls, setSelectedUrls] = useState<Set<string>>(new Set())
-  const [isBulkPending, startBulkTransition] = useTransition()
-  const navigate = useNavigate()
+  const [progress, setProgress] = useState<BulkScrapeProgress | null>(null)
 
   function handleSelectAll() {
     if (selectedUrls.size === searchResults.length) {
@@ -61,11 +67,43 @@ function RouteComponent() {
         return
       }
 
-      await scrapeBulkUrlFn({
-        data: { urls: Array.from(selectedUrls) },
+      setProgress({
+        completed: 0,
+        total: selectedUrls.size,
+        url: '',
+        status: 'success',
       })
 
-      toast.success(`${selectedUrls.size} URL(s) scraped successfully.`)
+      let successCount = 0
+      let failedCount = 0
+
+      for await (const update of await scrapeBulkUrlFn({
+        data: { urls: Array.from(selectedUrls) },
+      })) {
+        setProgress(update)
+
+        if (update.status === 'success') {
+          successCount++
+        } else {
+          failedCount++
+        }
+      }
+
+      setProgress(null)
+
+      if (failedCount > 0) {
+        toast.success(
+          `Scraped ${successCount} urls & failed ${failedCount} urls`,
+        )
+      } else {
+        toast.success(`Scraped ${successCount} urls successfully`)
+      }
+
+      /* await scrapeBulkUrlFn({
+        data: { urls: Array.from(selectedUrls) },
+      }) */
+
+      /* toast.success(`${selectedUrls.size} URL(s) scraped successfully.`) */
       navigate({ to: '/dashboard/items' })
     })
   }
@@ -79,7 +117,9 @@ function RouteComponent() {
     },
     onSubmit: ({ value }) => {
       startTransition(async function () {
-        const result = await searchWebFn({ data: { query: value.query } })
+        const result = await searchWebFn({
+          data: { query: value.query },
+        })
 
         setSearchResults(result)
       })
@@ -88,23 +128,25 @@ function RouteComponent() {
 
   return (
     <div className="flex flex-1 items-center justify-center py-8">
-      <div className="w-full max-w-2xl space-y-6 px-4">
+      <div className="w-full max-w-2xl space-x-6 px-4">
         <div className="text-center">
           <h1 className="text-3xl font-bold">Discover</h1>
           <p className="text-muted-foreground pt-2">
-            Search the web for articles on any topic
+            Scrape by searching any topic
           </p>
         </div>
+
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-3">
+            <CardTitle className="flex items-center gap-2.5">
               <Sparkles className="size-5 text-primary" />
-              Topic Search
+              Your Topic
             </CardTitle>
-            <CardDescription>
-              Search the web for your topic of interest
+            <CardDescription className="py-1">
+              Search the content and scrape
             </CardDescription>
           </CardHeader>
+
           <CardContent className="space-y-6">
             <form
               onSubmit={(e) => {
@@ -120,9 +162,7 @@ function RouteComponent() {
                       field.state.meta.isTouched && !field.state.meta.isValid
                     return (
                       <Field data-invalid={isInvalid}>
-                        <FieldLabel htmlFor={field.name}>
-                          Search Query
-                        </FieldLabel>
+                        <FieldLabel htmlFor={field.name}>Topic Name</FieldLabel>
                         <Input
                           id={field.name}
                           name={field.name}
@@ -130,7 +170,7 @@ function RouteComponent() {
                           onBlur={field.handleBlur}
                           onChange={(e) => field.handleChange(e.target.value)}
                           aria-invalid={isInvalid}
-                          placeholder="e.g., Tanstack Start tutorial"
+                          placeholder="e.g., Tanstack Start Routing"
                           autoComplete="off"
                         />
                         {isInvalid && (
@@ -141,16 +181,14 @@ function RouteComponent() {
                   }}
                 />
 
-                <Button disabled={isPending} type="submit">
+                <Button type="submit" disabled={isPending}>
                   {isPending ? (
                     <>
-                      <Loader2 className="size-4 animate-spin" />
-                      Creating...
+                      <Loader2 className="animate-spin size-4" /> Searching...
                     </>
                   ) : (
                     <>
-                      <Search className="size-4" />
-                      Search
+                      <Search className="size-4" /> Search
                     </>
                   )}
                 </Button>
@@ -203,6 +241,25 @@ function RouteComponent() {
                   ))}
                 </div>
 
+                {progress && (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">
+                        Importing: {progress.completed}/{progress.total}
+                      </span>
+                      <span className="font-medium">
+                        {Math.round(
+                          (progress.completed / progress.total) * 100,
+                        )}{' '}
+                        %
+                      </span>
+                    </div>
+                    <Progress
+                      value={(progress.completed / progress.total) * 100}
+                    />
+                  </div>
+                )}
+
                 <Button
                   disabled={isBulkPending}
                   onClick={handleBulkImport}
@@ -211,7 +268,10 @@ function RouteComponent() {
                 >
                   {isBulkPending ? (
                     <>
-                      <Loader2 className={`size-4 animate-spin`} /> Scraping...
+                      <Loader2 className={`size-4 animate-spin`} />{' '}
+                      {progress
+                        ? `Scraping ${progress.completed}/${progress.total}`
+                        : `Starting...`}
                     </>
                   ) : (
                     `Scrape ${selectedUrls.size} URL(s)`
