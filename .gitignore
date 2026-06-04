@@ -13,3 +13,5 @@ __unconfig*
 todos.json
 *.bat
 *.sh
+pnpm-lock.yaml
+pnpm-workspace.yaml
