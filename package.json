@@ -40,7 +40,7 @@
     "@tanstack/react-router-ssr-query": "latest",
     "@tanstack/react-start": "latest",
     "@tanstack/router-plugin": "^1.132.0",
-    "@tanstack/zod-adapter": "^1.166.9",
+    "@tanstack/zod-adapter": "^1.167.0",
     "ai": "^6.0.177",
     "better-auth": "^1.6.9",
     "class-variance-authority": "^0.7.1",
