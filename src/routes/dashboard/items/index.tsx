@@ -138,7 +138,10 @@ function ItemsList({
             {item.ogImage && (
               <div className={`aspect-video overflow-hidden w-full bg-muted`}>
                 <img
-                  src={item.ogImage}
+                src={
+                  item.ogImage ??
+                  'https://images.unsplash.com/photo-1635776062043-223faf322554?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+                }
                   alt={item.title ?? 'Article Thumbnail'}
                   className={`h-full w-full object-cover group-hover:scale-105 transition-all`}
                 ></img>
