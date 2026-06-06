@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
+import { createFileRoute, Outlet } from '@tanstack/react-router'
 import { Separator } from '@/components/ui/separator'
 import {
   SidebarInset,
@@ -13,10 +13,6 @@ export const Route = createFileRoute('/dashboard')({
   component: RouteComponent,
   loader: async () => {
     const session = await getSessionFn()
-
-    if (!session) {
-      throw redirect({ to: '/login' })
-    }
 
     return {
       user: session.user,

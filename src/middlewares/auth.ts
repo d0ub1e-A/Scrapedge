@@ -9,8 +9,7 @@ export const authFnMiddleware = createMiddleware({ type: 'function' }).server(
     const session = await auth.api.getSession({ headers })
 
     if (!session) {
-      // throw redirect({ to: '/login' })
-      throw new Error('Unauthorized')
+      throw redirect({ to: '/login' })
     }
 
     return next({ context: { session } })
@@ -22,9 +21,7 @@ export const authMiddleware = createMiddleware({ type: 'request' }).server(
     const url = new URL(request.url)
 
     if (
-      // !url.pathname.startsWith('/dashboard') &&
-      // !url.pathname.startsWith('/api/ai')
-      !url.pathname.startsWith('/dashboard') ||
+      !url.pathname.startsWith('/dashboard') &&
       !url.pathname.startsWith('/api/ai')
     ) {
       return next()
