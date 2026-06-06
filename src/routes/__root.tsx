@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react'
 import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
@@ -6,7 +5,7 @@ import { TanStackDevtools } from '@tanstack/react-devtools'
 import appCss from '../styles.css?url'
 import { ThemeProvider } from '#/lib/theme-provider'
 import { Toaster } from '#/components/ui/sonner'
-// import { ReactLenis } from 'lenis/react'
+import { ReactLenis } from 'lenis/react'
 
 export const Route = createRootRoute({
   head: () => ({
@@ -39,12 +38,6 @@ export const Route = createRootRoute({
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
   return (
     <html lang="en">
       <head>
@@ -52,26 +45,21 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <ThemeProvider>
-          {/* {mounted ? (
-            <ReactLenis
-              root
-              options={{
-                lerp: 0.1,
-                orientation: 'vertical',
-                gestureOrientation: 'vertical',
-                smoothWheel: true,
-                wheelMultiplier: 1,
-                touchMultiplier: 2,
-                syncTouch: true,
-                anchors: true,
-              }}
-            >
-              {children}
-            </ReactLenis>
-          ) : (
-            children
-          )} */}
-          {children}
+          <ReactLenis
+            root
+            options={{
+              lerp: 0.1,
+              orientation: 'vertical',
+              gestureOrientation: 'vertical',
+              smoothWheel: true,
+              wheelMultiplier: 1,
+              touchMultiplier: 2,
+              syncTouch: true,
+              anchors: true,
+            }}
+          >
+            {children}
+          </ReactLenis>
           <Toaster closeButton position="top-center" />
         </ThemeProvider>
         <TanStackDevtools

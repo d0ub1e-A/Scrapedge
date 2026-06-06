@@ -166,12 +166,7 @@ function ItemsList({
               </div>
             )}
 
-            <CardHeader
-              onClick={function (e) {
-                e.preventDefault()
-              }}
-              className="space-y-3 py-4"
-            >
+            <CardHeader className="space-y-3 py-4">
               <div className="justify-between items-center flex gap-2">
                 <Badge
                   variant={
@@ -181,7 +176,12 @@ function ItemsList({
                 >
                   {item.status.toLowerCase()}
                 </Badge>
-                <div className="flex gap-2">
+                <div
+                  onClick={function (e) {
+                    e.preventDefault()
+                  }}
+                  className="flex gap-2"
+                >
                   <Button
                     onClick={async function () {
                       await copyToClipboard(item.url)
