@@ -1,7 +1,19 @@
 import { Badge } from '#/components/ui/badge'
 import { Button, buttonVariants } from '#/components/ui/button'
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '#/components/ui/alert-dialog'
+import {
   Card,
+  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
@@ -14,11 +26,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '#/components/ui/select'
-import { getItemsFn } from '#/data/items'
+import { getItemsFn, deleteItemFn } from '#/data/items'
 import { ItemStatus } from '#/generated/prisma/enums'
 import { copyToClipboard } from '#/lib/clipboard'
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { Copy, Inbox } from 'lucide-react'
+import {
+  createFileRoute,
+  Link,
+  useNavigate,
+  useRouter,
+} from '@tanstack/react-router'
+import { Copy, Inbox, Trash } from 'lucide-react'
 import z from 'zod'
 import { zodValidator } from '@tanstack/zod-adapter'
 import { Suspense, use, useEffect, useState } from 'react'
@@ -84,6 +101,7 @@ function ItemsList({
   status: ItemsSearch['status']
   data: ReturnType<typeof getItemsFn>
 }) {
+  const router = useRouter()
   const itemsData = use(data)
 
   const filteredItems = itemsData.filter((item) => {
@@ -133,22 +151,27 @@ function ItemsList({
           <Link
             to="/dashboard/items/$itemId"
             params={{ itemId: item.id }}
-            className={`block`}
+            className="block relative z-0"
           >
             {item.ogImage && (
               <div className={`aspect-video overflow-hidden w-full bg-muted`}>
                 <img
-                src={
-                  item.ogImage ??
-                  'https://images.unsplash.com/photo-1635776062043-223faf322554?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
-                }
+                  src={
+                    item.ogImage ??
+                    'https://images.unsplash.com/photo-1635776062043-223faf322554?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+                  }
                   alt={item.title ?? 'Article Thumbnail'}
                   className={`h-full w-full object-cover group-hover:scale-105 transition-all`}
                 ></img>
               </div>
             )}
 
-            <CardHeader className="space-y-3 pt-4">
+            <CardHeader
+              onClick={function (e) {
+                e.preventDefault()
+              }}
+              className="space-y-3 py-4"
+            >
               <div className="justify-between items-center flex gap-2">
                 <Badge
                   variant={
@@ -158,19 +181,53 @@ function ItemsList({
                 >
                   {item.status.toLowerCase()}
                 </Badge>
-                <Button
-                  onClick={async function (e) {
-                    e.preventDefault()
-                    await copyToClipboard(item.url)
-                  }}
-                  variant={'outline'}
-                  size={'icon'}
-                  className="size-8"
-                >
-                  <Copy className="size-4" />
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={async function () {
+                      await copyToClipboard(item.url)
+                    }}
+                    variant={'outline'}
+                    size={'icon'}
+                    className="size-8"
+                  >
+                    <Copy className="size-4" />
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant={'outline'}
+                        size={'icon'}
+                        className="size-8 text-destructive hover:bg-destructive/10 hover:text-destructive relative z-10"
+                      >
+                        <Trash className="size-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently
+                          delete the item.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          onClick={async function () {
+                            await deleteItemFn({ data: { id: item.id } })
+                            router.invalidate()
+                          }}
+                        >
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
               </div>
-
+            </CardHeader>
+            <CardContent>
               <CardTitle className="line-clamp-1 group-hover:text-primary leading-snug transition-colors text-xl">
                 {item.title}
               </CardTitle>
@@ -194,7 +251,7 @@ function ItemsList({
                   ))}
                 </div>
               )}
-            </CardHeader>
+            </CardContent>
           </Link>
         </Card>
       ))}

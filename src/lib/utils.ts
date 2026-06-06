@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 import { useNavigate } from '@tanstack/react-router'
 import type { ErrorContext } from 'better-auth/react'
 import { authClient } from './auth-client'
+export * from 'lenis/react'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))

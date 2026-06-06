@@ -8,9 +8,29 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible'
-import { getItemById, saveSummaryAndGenerateTagsFn } from '@/data/items'
+import {
+  getItemById,
+  saveSummaryAndGenerateTagsFn,
+  deleteItemFn,
+} from '@/data/items'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 import { cn } from '@/lib/utils'
-import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
+import {
+  createFileRoute,
+  Link,
+  useRouter,
+  useNavigate,
+} from '@tanstack/react-router'
 import {
   ArrowLeft,
   Calendar,
@@ -20,6 +40,7 @@ import {
   Loader2,
   Sparkles,
   User,
+  Trash,
 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -61,6 +82,7 @@ function RouteComponent() {
   const data = Route.useLoaderData()
   const [contentOpen, setContentOpen] = useState(false)
   const router = useRouter()
+  const navigate = useNavigate()
 
   const { completion, complete, isLoading } = useCompletion({
     api: '/api/ai/summary',
@@ -96,7 +118,7 @@ function RouteComponent() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 w-full">
-      <div className="flex justify-start">
+      <div className="flex justify-between items-center">
         <Link
           to="/dashboard/items"
           className={buttonVariants({
@@ -106,6 +128,40 @@ function RouteComponent() {
           <ArrowLeft />
           Go Back
         </Link>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+            >
+              <Trash className="mr-2 size-4" />
+              Delete Item
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the
+                item.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                onClick={async function () {
+                  await deleteItemFn({ data: { id: data.id } })
+                  toast.success('Item deleted successfully')
+                  navigate({ to: '/dashboard/items' })
+                }}
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
       <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted">

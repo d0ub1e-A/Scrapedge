@@ -210,6 +210,18 @@ export const getItemById = createServerFn({ method: 'GET' })
     return item
   })
 
+export const deleteItemFn = createServerFn({ method: 'POST' })
+  .middleware([authFnMiddleware])
+  .inputValidator(z.object({ id: z.string() }))
+  .handler(async function ({ context, data }) {
+    await prisma.savedItem.deleteMany({
+      where: {
+        id: data.id,
+        userid: context.session.user.id,
+      },
+    })
+  })
+
 // server function saving the generated summary and  generate tags and saving them too to the db
 export const saveSummaryAndGenerateTagsFn = createServerFn({ method: 'POST' })
   .middleware([authFnMiddleware])

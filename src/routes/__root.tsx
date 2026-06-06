@@ -5,6 +5,7 @@ import { TanStackDevtools } from '@tanstack/react-devtools'
 import appCss from '../styles.css?url'
 import { ThemeProvider } from '#/lib/theme-provider'
 import { Toaster } from '#/components/ui/sonner'
+import { ReactLenis } from '#/lib/utils'
 
 export const Route = createRootRoute({
   head: () => ({
@@ -44,7 +45,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <ThemeProvider>
-          {children}
+          <ReactLenis>{children}</ReactLenis>
           <Toaster closeButton position="top-center" />
         </ThemeProvider>
         <TanStackDevtools
