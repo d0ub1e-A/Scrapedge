@@ -14,5 +14,8 @@
     "openrouter",
     "Scrapedge",
     "tsrouter"
-  ]
+  ],
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }

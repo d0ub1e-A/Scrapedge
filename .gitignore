@@ -14,3 +14,6 @@ todos.json
 *.bat
 *.sh
 pnpm-workspace.yaml
+
+# agents realated
+graphify-out

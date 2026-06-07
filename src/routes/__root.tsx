@@ -48,13 +48,13 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <ReactLenis
             root
             options={{
-              lerp: 0.1,
+              lerp: 0.075,
               orientation: 'vertical',
               gestureOrientation: 'vertical',
               smoothWheel: true,
               wheelMultiplier: 1,
-              touchMultiplier: 2,
-              syncTouch: true,
+               touchMultiplier: 1,
+               syncTouch: false,
               anchors: true,
             }}
           >
