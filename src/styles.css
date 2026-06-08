@@ -4,6 +4,32 @@
 @import '@fontsource-variable/inter';
 @source "../node_modules/streamdown/dist/*.js";
 
+/* --- CUSTOM DESIGN SYSTEM --- */
+@font-face {
+  font-family: 'SundayShine';
+  src: url('/fonts/Sunday shine.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* Brand Colors */
+  --color-brand-primary: oklch(0.553 0.195 38.402);
+  --color-brand-primary-soft: oklch(0.68 0.15 38.4);
+  
+  /* Luminous Brand Glow Gradient */
+  --gradient-brand-glow: linear-gradient(135deg, oklch(0.68 0.15 38.4) 0%, oklch(0.55 0.19 38.4) 100%);
+  
+  /* Feature Card Tints (Updated for modern saturation) */
+  --color-tint-peach: oklch(0.92 0.04 38.4);
+  --color-tint-rose: oklch(0.92 0.04 10);
+  --color-tint-mint: oklch(0.92 0.04 150);
+  --color-tint-lavender: oklch(0.92 0.04 260);
+  --color-tint-sky: oklch(0.92 0.04 220);
+}
+/* --------------------------- */
+
 @custom-variant dark (&:is(.dark *));
 
 * {
