@@ -245,7 +245,7 @@ function BentoFeatures() {
       title: 'Bulk Extraction',
       desc: "Don't waste time with one-by-one. Process hundreds of URLs in a single batch.",
       icon: Layers,
-      color: 'var(--color-tint-sky)',
+      color: `var(--color-tint-sky)`,
       className: 'md:col-span-2',
     },
     {
@@ -289,7 +289,7 @@ function BentoFeatures() {
               style={{ backgroundColor: f.color }}
             >
               <div>
-                <div className="size-10 rounded-lg bg-background/50 text-foreground flex items-center justify-center mb-6 shadow-sm">
+                 <div className="size-10 rounded-lg bg-foreground/10 text-foreground flex items-center justify-center mb-6 shadow-sm">
                   <f.icon className="size-5" />
                 </div>
                 <h3 className="text-xl font-bold mb-2 text-foreground">

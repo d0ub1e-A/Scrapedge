@@ -1,6 +1,7 @@
 import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
+import { FaviconUpdater } from '#/components/favicon-updater'
 
 import appCss from '../styles.css?url'
 import { ThemeProvider } from '#/lib/theme-provider'
@@ -26,6 +27,10 @@ export const Route = createRootRoute({
         rel: 'stylesheet',
         href: appCss,
       },
+      {
+        rel: 'icon',
+        href: '/favicon.ico'
+      }
     ],
   }),
   shellComponent: RootDocument,
@@ -45,6 +50,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <ThemeProvider>
+          <FaviconUpdater />
           <ReactLenis
             root
             options={{

@@ -143,6 +143,11 @@ body {
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
+  --color-tint-peach: oklch(0.25 0.04 38.4);
+  --color-tint-rose: oklch(0.25 0.04 10);
+  --color-tint-mint: oklch(0.25 0.04 150);
+  --color-tint-lavender: oklch(0.25 0.04 260);
+  --color-tint-sky: oklch(0.25 0.04 220);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);

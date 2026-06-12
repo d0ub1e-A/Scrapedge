@@ -23,8 +23,14 @@ function Navbar() {
             <img
               src="/favicon.ico"
               alt="Scrapedge Logo"
-              className="size-full object-cover"
+              className="size-full object-cover dark:hidden"
             />
+            <img
+              src="/favicon_white.ico"
+              alt="Scrapedge Logo"
+              className="size-full object-cover hidden dark:block"
+            />
+            {/* <Logo /> */}
             <div className="absolute inset-0 bg-primary/20 blur-md" />
           </div>
           <h1
