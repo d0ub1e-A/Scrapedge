@@ -11,9 +11,14 @@ import {
   Cpu,
   Users,
   Lightbulb,
+  Facebook,
+  Github,
+  Mail,
 } from 'lucide-react'
 import { Button } from '#/components/ui/button'
 import { Link } from '@tanstack/react-router'
+import { Dialog, DialogContent, DialogTrigger } from '#/components/ui/dialog'
+import { YouTubeEmbed } from '#/components/youtube-embed'
 
 export const Route = createFileRoute('/')({ component: Home })
 
@@ -98,12 +103,27 @@ function Hero() {
               </span>
               <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
             </Link>
-            <Button
-              variant="outline"
-              className="px-8 py-6 rounded-full border-primary/20 hover:bg-primary/5 transition-all duration-300"
-            >
-              Watch Demo
-            </Button>
+            <Dialog>
+              <DialogTrigger>
+                <Button
+                  variant="outline"
+                  className="px-8 py-6 rounded-full border-primary/20 hover:bg-primary/5 transition-all duration-300"
+                >
+                  Watch Demo
+                </Button>
+              </DialogTrigger>
+
+              <DialogContent
+                showCloseButton={false}
+                className="p-0 overflow-hidden max-w-full sm:max-w-4xl w-full rounded-xl"
+              >
+                <YouTubeEmbed
+                  videoId="pKVjOQyZ2kE"
+                  title="Firecrawl Demo"
+                  autoplay
+                />
+              </DialogContent>
+            </Dialog>
           </motion.div>
 
           {/* Interactive Visual */}
@@ -128,7 +148,7 @@ function Hero() {
                 </div>
 
                 {/* Mock Interaction Area */}
-                <div className="p-6 md:p-12 min-h-[400px] flex flex-col items-center justify-center text-center">
+                <div className="p-6 md:p-12 min-h-100 flex flex-col items-center justify-center text-center">
                   <MockWorkflow />
                 </div>
               </div>
@@ -289,7 +309,7 @@ function BentoFeatures() {
               style={{ backgroundColor: f.color }}
             >
               <div>
-                 <div className="size-10 rounded-lg bg-foreground/10 text-foreground flex items-center justify-center mb-6 shadow-sm">
+                <div className="size-10 rounded-lg bg-foreground/10 text-foreground flex items-center justify-center mb-6 shadow-sm">
                   <f.icon className="size-5" />
                 </div>
                 <h3 className="text-xl font-bold mb-2 text-foreground">
@@ -390,7 +410,9 @@ function FinalCTA() {
                 variant="ghost"
                 className="px-8 py-6 rounded-full text-white hover:bg-white/10 text-lg"
               >
-                Contact Sales
+                <a href="mailto:ahnafabid.social@gmail.com" target="_blank">
+                  Contact Us
+                </a>
               </Button>
             </div>
           </div>
@@ -409,20 +431,55 @@ function Home() {
       <BentoFeatures />
       <UseCases />
       <FinalCTA />
-      <footer className="py-12 border-t border-border text-center text-muted-foreground text-sm">
-        <div className="flex items-center justify-center gap-2 mb-4">
-          <img src="/favicon.ico" alt="Scrapedge Logo" className="size-5" />
-          <span
-            className="font-medium"
-            style={{ fontFamily: 'SundayShine, sans-serif' }}
-          >
-            Scrapedge
-          </span>
+      <footer className="relative py-12 pb-20 sm:pb-12 border-t border-border text-muted-foreground text-sm overflow-hidden">
+        <div className="container mx-auto px-4 flex flex-col items-center justify-center text-center gap-4 w-fit">
+          <div className="flex items-center justify-center gap-2">
+            <img
+              src="/favicon.ico"
+              alt="Scrapedge Logo"
+              className="size-5 dark:hidden"
+            />
+            <img
+              src="/favicon_white.ico"
+              alt="Scrapedge Logo"
+              className="size-5 dark:block hidden"
+            />
+            <span
+              className="font-medium text-foreground"
+              style={{ fontFamily: 'SundayShine, sans-serif' }}
+            >
+              Scrapedge
+            </span>
+          </div>
+          <p className="max-w-xs">
+            © {new Date().getFullYear()} Scrapedge. Built for the future of
+            knowledge.
+          </p>
         </div>
-        <p>
-          © {new Date().getFullYear()} Scrapedge. Built for the future of
-          knowledge.
-        </p>
+
+        <div className="flex items-center justify-center gap-4 mt-8 sm:absolute sm:bottom-1/3 sm:right-10 sm:mt-0">
+          <a
+            href="https://www.facebook.com/ahanapha.abida.916117"
+            target="_blank"
+            className="text-foreground/60 hover:text-primary transition-colors duration-300"
+          >
+            <Facebook className="size-5" />
+          </a>
+          <a
+            href="mailto:ahnafabid.social@gmail.com"
+            target="_blank"
+            className="text-foreground/60 hover:text-primary transition-colors duration-300"
+          >
+            <Mail className="size-5" />
+          </a>
+          <a
+            href="https://github.com/d0ub1e-A/Scrapedge/"
+            target="_blank"
+            className="text-foreground/60 hover:text-primary transition-colors duration-300"
+          >
+            <Github className="size-5" />
+          </a>
+        </div>
       </footer>
     </div>
   )

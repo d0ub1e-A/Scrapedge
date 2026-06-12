@@ -20,17 +20,6 @@ export function NavPrimary({ items }: NavPrimaryProps) {
                   <Link
                     activeProps={{ 'data-active': true }}
                     to={item.to}
-                    // search={
-                    //   item.to === '/dashboard/items'
-                    //     ? {
-                    //         q: 'Neon',
-                    //         status: 'COMPLETED',
-                    //       }
-                    //     : {
-                    //         q: '',
-                    //         status: 'all',
-                    //       }
-                    // }
                     activeOptions={item.activeOptions}
                   >
                     <item.icon />

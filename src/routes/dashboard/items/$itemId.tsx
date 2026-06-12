@@ -164,7 +164,7 @@ function RouteComponent() {
         </AlertDialog>
       </div>
 
-      <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted">
+      <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted backlight">
         <img
           className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
           src={

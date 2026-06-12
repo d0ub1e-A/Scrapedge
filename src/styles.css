@@ -17,10 +17,14 @@
   /* Brand Colors */
   --color-brand-primary: oklch(0.553 0.195 38.402);
   --color-brand-primary-soft: oklch(0.68 0.15 38.4);
-  
+
   /* Luminous Brand Glow Gradient */
-  --gradient-brand-glow: linear-gradient(135deg, oklch(0.68 0.15 38.4) 0%, oklch(0.55 0.19 38.4) 100%);
-  
+  --gradient-brand-glow: linear-gradient(
+    135deg,
+    oklch(0.68 0.15 38.4) 0%,
+    oklch(0.55 0.19 38.4) 100%
+  );
+
   /* Feature Card Tints (Updated for modern saturation) */
   --color-tint-peach: oklch(0.92 0.04 38.4);
   --color-tint-rose: oklch(0.92 0.04 10);
@@ -173,4 +177,16 @@ body {
   html {
     @apply font-sans;
   }
+}
+
+.backlight::after {
+  content: '';
+  width: 100%;
+  height: 100%;
+  top: 0;
+  position: absolute;
+  background: inherit;
+  z-index: -1;
+  filter: blur(20px) brightness(150%);
+  transform: scale(1.5);
 }

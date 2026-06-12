@@ -13,6 +13,7 @@ import {
 import { BookmarkIcon, Import, Compass } from 'lucide-react'
 import { Link, linkOptions } from '@tanstack/react-router'
 import type { NavPrimaryProps, NavUserProps } from '#/lib/types'
+import ThemeToggle from './theme-toggle'
 
 const navItems: NavPrimaryProps['items'] = linkOptions([
   {
@@ -54,7 +55,7 @@ export function AppSidebar({ user }: NavUserProps) {
                     Your AI Knowledge Base
                   </span>
                 </div>
-                {/* <ThemeToggle /> */}
+                <ThemeToggle />
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

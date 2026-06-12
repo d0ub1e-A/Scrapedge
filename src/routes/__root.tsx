@@ -54,7 +54,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <ReactLenis
             root
             options={{
-              lerp: 0.075,
+              lerp: 0.085,
               orientation: 'vertical',
               gestureOrientation: 'vertical',
               smoothWheel: true,

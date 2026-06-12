@@ -25,6 +25,12 @@
       "skillPath": ".agent/skills/implement_lenis_scroll/SKILL.md",
       "computedHash": "595d911a46b2953b97ad2d77bf3bd59b335a5a728355a8ef1091f3615c08c0db"
     },
+    "readme-generator": {
+      "source": "patricio0312rev/skills",
+      "sourceType": "github",
+      "skillPath": "foundation/readme-generator/SKILL.md",
+      "computedHash": "654b6ca8f7061142b6c54f4f1cb457821aefef5237e29e0ee9199bef4c93b547"
+    },
     "shadcn-ui": {
       "source": "google-labs-code/stitch-skills",
       "sourceType": "github",
