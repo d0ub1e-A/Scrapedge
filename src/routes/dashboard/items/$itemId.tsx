@@ -44,6 +44,7 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { useQueryClient } from '@tanstack/react-query'
 
 export const Route = createFileRoute('/dashboard/items/$itemId')({
   component: RouteComponent,
@@ -116,6 +117,8 @@ function RouteComponent() {
     complete(data.content)
   }
 
+  const queryClient = useQueryClient()
+
   return (
     <div className="mx-auto max-w-3xl space-y-6 w-full">
       <div className="flex justify-between items-center">
@@ -153,6 +156,9 @@ function RouteComponent() {
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 onClick={async function () {
                   await deleteItemFn({ data: { id: data.id } })
+                  queryClient.invalidateQueries({
+                    queryKey: ['items'],
+                  })
                   toast.success('Item deleted successfully')
                   navigate({ to: '/dashboard/items' })
                 }}

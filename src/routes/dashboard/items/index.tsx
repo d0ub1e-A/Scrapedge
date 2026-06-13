@@ -29,16 +29,11 @@ import {
 import { getItemsFn, deleteItemFn } from '#/data/items'
 import { ItemStatus } from '#/generated/prisma/enums'
 import { copyToClipboard } from '#/lib/clipboard'
-import {
-  createFileRoute,
-  Link,
-  useNavigate,
-  useRouter,
-} from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { Copy, Inbox, Trash } from 'lucide-react'
 import z from 'zod'
 import { zodValidator } from '@tanstack/zod-adapter'
-import { Suspense, use, useEffect, useState } from 'react'
+import { /* Suspense, */ useEffect, useState } from 'react'
 import {
   Empty,
   EmptyContent,
@@ -48,6 +43,7 @@ import {
   EmptyTitle,
 } from '#/components/ui/empty'
 import { Skeleton } from '#/components/ui/skeleton'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 
 const itemSearchSchema = z.object({
   q: z.string().default(''),
@@ -58,7 +54,7 @@ type ItemsSearch = z.infer<typeof itemSearchSchema>
 
 export const Route = createFileRoute('/dashboard/items/')({
   component: RouteComponent,
-  loader: () => ({ itemsPromise: getItemsFn() }),
+  // loader: () => ({ itemsPromise: getItemsFn() }),
   validateSearch: zodValidator(itemSearchSchema),
   head: () => ({
     meta: [
@@ -95,16 +91,21 @@ function ItemsGridSkeleton() {
 function ItemsList({
   q,
   status,
-  data,
+  // data,
 }: {
   q: ItemsSearch['q']
   status: ItemsSearch['status']
-  data: ReturnType<typeof getItemsFn>
+  // data: Awaited<ReturnType<typeof getItemsFn>>
 }) {
-  const router = useRouter()
-  const itemsData = use(data)
+  const queryClient = useQueryClient()
 
-  const filteredItems = itemsData.filter((item) => {
+  const { data: itemsData, isLoading } = useQuery({
+    queryKey: ['items'],
+    queryFn: () => getItemsFn(),
+    staleTime: 60 * 60 * 1000,
+  })
+
+  const filteredItems = itemsData?.filter((item) => {
     const matchesQuery =
       q === '' ||
       item.title?.toLowerCase().includes(q.toLowerCase()) ||
@@ -114,7 +115,7 @@ function ItemsList({
     return matchesQuery && matchesStatus
   })
 
-  if (filteredItems.length === 0) {
+  if (filteredItems?.length === 0) {
     return (
       <Empty className="border rounded-lg h-full">
         <EmptyHeader>
@@ -122,15 +123,15 @@ function ItemsList({
             <Inbox className="size-12" />
           </EmptyMedia>
           <EmptyTitle>
-            {itemsData.length === 0 ? 'No items saved yet' : 'No items found'}
+            {itemsData?.length === 0 ? 'No items saved yet' : 'No items found'}
           </EmptyTitle>
           <EmptyDescription>
-            {itemsData.length === 0
+            {itemsData?.length === 0
               ? 'Start by importing URL to save your contents'
               : 'No items matches your search'}
           </EmptyDescription>
         </EmptyHeader>
-        {itemsData.length === 0 && (
+        {itemsData?.length === 0 && (
           <EmptyContent>
             <Link className={buttonVariants()} to="/dashboard/import">
               Import URL
@@ -141,9 +142,11 @@ function ItemsList({
     )
   }
 
-  return (
+  return isLoading ? (
+    <ItemsGridSkeleton />
+  ) : (
     <div className={`grid gap-6 md:grid-cols-2`}>
-      {filteredItems.map((item) => (
+      {filteredItems?.map((item) => (
         <Card
           key={item.id}
           className={`group overflow-hidden transition-all hover:shadow-lg pt-0`}
@@ -216,7 +219,9 @@ function ItemsList({
                           className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                           onClick={async function () {
                             await deleteItemFn({ data: { id: item.id } })
-                            router.invalidate()
+                            queryClient.invalidateQueries({
+                              queryKey: ['items'],
+                            })
                           }}
                         >
                           Delete
@@ -260,7 +265,6 @@ function ItemsList({
 }
 
 function RouteComponent() {
-  const { itemsPromise } = Route.useLoaderData()
   const { q, status } = Route.useSearch()
   const [searchInput, setSearchInput] = useState(q)
   // from property tells the navigate hook from which route the new path should be navigated
@@ -322,9 +326,7 @@ function RouteComponent() {
         </Select>
       </div>
 
-      <Suspense fallback={<ItemsGridSkeleton />}>
-        <ItemsList q={q} status={status} data={itemsPromise} />
-      </Suspense>
+      <ItemsList q={q} status={status} />
     </div>
   )
 }
