@@ -29,7 +29,11 @@ import {
 import { getItemsFn, deleteItemFn } from '#/data/items'
 import { ItemStatus } from '#/generated/prisma/enums'
 import { copyToClipboard } from '#/lib/clipboard'
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import {
+  createFileRoute,
+  Link,
+  useNavigate
+} from '@tanstack/react-router'
 import { Copy, Inbox, Trash } from 'lucide-react'
 import z from 'zod'
 import { zodValidator } from '@tanstack/zod-adapter'
@@ -98,6 +102,10 @@ function ItemsList({
   // data: Awaited<ReturnType<typeof getItemsFn>>
 }) {
   const queryClient = useQueryClient()
+
+  useEffect(() => {
+    queryClient.invalidateQueries({ queryKey: ['items'] })
+  }, [])
 
   const { data: itemsData, isLoading } = useQuery({
     queryKey: ['items'],
