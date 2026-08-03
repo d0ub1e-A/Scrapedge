@@ -17,7 +17,7 @@ import type { SearchResultWeb } from '@mendable/firecrawl-js'
 // server function for single url
 export const scrapeUrlFn = createServerFn({ method: 'POST' })
   .middleware([authFnMiddleware])
-  .inputValidator(singleImportSchema)
+  .validator(singleImportSchema)
   .handler(async function ({ data, context }) {
     const item = await prisma.savedItem.create({
       data: {
@@ -81,7 +81,7 @@ export const scrapeUrlFn = createServerFn({ method: 'POST' })
 // server function for finding out children urls
 export const mapUrlFn = createServerFn({ method: 'POST' })
   .middleware([authFnMiddleware])
-  .inputValidator(bulkImportSchema)
+  .validator(bulkImportSchema)
   .handler(async function ({ data }) {
     const result = await firecrawl.map(data.url, {
       limit: 15,
@@ -100,7 +100,7 @@ export type BulkScrapeProgress = {
 // server function for multiple url
 export const scrapeBulkUrlFn = createServerFn({ method: 'POST' })
   .middleware([authFnMiddleware])
-  .inputValidator(z.object({ urls: z.array(z.string().url()) }))
+  .validator(z.object({ urls: z.array(z.string().url()) }))
   .handler(async function* ({ data, context }) {
     const total = data.urls.length
 
@@ -196,7 +196,7 @@ export const getItemsFn = createServerFn({ method: 'GET' })
 // server function for fetching single saved item
 export const getItemById = createServerFn({ method: 'GET' })
   .middleware([authFnMiddleware])
-  .inputValidator(z.object({ id: z.string() }))
+  .validator(z.object({ id: z.string() }))
   .handler(async function ({ context, data }) {
     const item = await prisma.savedItem.findUnique({
       where: {
@@ -212,7 +212,7 @@ export const getItemById = createServerFn({ method: 'GET' })
 
 export const deleteItemFn = createServerFn({ method: 'POST' })
   .middleware([authFnMiddleware])
-  .inputValidator(z.object({ id: z.string() }))
+  .validator(z.object({ id: z.string() }))
   .handler(async function ({ context, data }) {
     await prisma.savedItem.deleteMany({
       where: {
@@ -225,7 +225,7 @@ export const deleteItemFn = createServerFn({ method: 'POST' })
 // server function saving the generated summary and  generate tags and saving them too to the db
 export const saveSummaryAndGenerateTagsFn = createServerFn({ method: 'POST' })
   .middleware([authFnMiddleware])
-  .inputValidator(
+  .validator(
     z.object({
       id: z.string(),
       summary: z.string(),
@@ -274,7 +274,7 @@ Example: technology, programming, web development, javascript`,
 
 export const searchWebFn = createServerFn({ method: 'POST' })
   .middleware([authFnMiddleware])
-  .inputValidator(searchSchema)
+  .validator(searchSchema)
   .handler(async function ({ data }) {
     const result = await firecrawl.search(data.query, {
       limit: 5,
